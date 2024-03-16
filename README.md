@@ -1,5 +1,7 @@
 # PuzzleService
 
+The Bloom & LostLight PuzzleService.
+
 - [PuzzleService](#puzzleservice)
   - [Live reloading with Air, installation and usage](#live-reloading-with-air-installation-and-usage)
   - [Installation](#installation)
