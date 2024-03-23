@@ -1,6 +1,6 @@
 module github.com/BloomGameStudio/PuzzleService
 
-go 1.21
+go 1.21.5
 
 require github.com/gofiber/fiber/v2 v2.52.2
 
