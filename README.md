@@ -11,16 +11,16 @@ The Bloom & LostLight PuzzleService.
     - [**Start the App and listen on port 1323**](#start-the-app-and-listen-on-port-1323)
     - [**Docker**](#docker)
   - [Live reloading with Air, installation and usage](#live-reloading-with-air-installation-and-usage)
-  - [Installation](#installation)
+  - [Air Installation](#air-installation)
     - [Via `go install` (Recommended)](#via-go-install-recommended)
     - [Via install.sh](#via-installsh)
     - [Via goblin.run](#via-goblinrun)
-    - [Docker/Podman](#dockerpodman)
+    - [Air Docker/Podman](#air-dockerpodman)
       - [Docker/Podman .${SHELL}rc](#dockerpodman-shellrc)
-  - [Usage](#usage)
-    - [Runtime arguments](#runtime-arguments)
-    - [Docker-compose](#docker-compose)
-    - [Debug](#debug)
+  - [Air Usage](#air-usage)
+    - [Air Runtime arguments](#air-runtime-arguments)
+    - [Docker-compose](#docker-compose-1)
+    - [Air Debug](#air-debug)
   - [Installation and Usage for Docker users who don't want to use air image](#installation-and-usage-for-docker-users-who-dont-want-to-use-air-image)
 
 ## Installation
@@ -117,7 +117,7 @@ Note: This will build a image and run and build a container which probably is a 
 
 [Official Air documentation](https://github.com/cosmtrek/air)
 
-## Installation
+## Air Installation
 
 ### Via `go install` (Recommended)
 
@@ -149,7 +149,7 @@ curl -sSfL https://goblin.run/github.com/cosmtrek/air | sh
 curl -sSfL https://goblin.run/github.com/cosmtrek/air | PREFIX=/tmp sh
 ```
 
-### Docker/Podman
+### Air Docker/Podman
 
 Please pull this docker image [cosmtrek/air](https://hub.docker.com/r/cosmtrek/air).
 
@@ -203,7 +203,7 @@ this will replace `$PWD` with the current directory, `$AIR_PORT` is the port whe
 
 </details>
 
-## Usage
+## Air Usage
 
 For less typing, you could add `alias air='~/.air'` to your `.bashrc` or `.zshrc`.
 
@@ -234,7 +234,7 @@ air
 
 For modifying the configuration refer to the [air_example.toml](air_example.toml) file.
 
-### Runtime arguments
+### Air Runtime arguments
 
 You can pass arguments for running the built binary by adding them after the air command.
 
@@ -274,7 +274,7 @@ services:
       - ./project-relative-path/:/project-package/
 ```
 
-### Debug
+### Air Debug
 
 `air -d` prints all logs.
 
