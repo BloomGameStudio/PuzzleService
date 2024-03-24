@@ -3,6 +3,9 @@
 The Bloom & LostLight PuzzleService.
 
 - [PuzzleService](#puzzleservice)
+  - [Installation](#installation)
+    - [**Native Bare Metel**](#native-bare-metel)
+  - [Usage](#usage)
   - [Live reloading with Air, installation and usage](#live-reloading-with-air-installation-and-usage)
   - [Installation](#installation)
     - [Via `go install` (Recommended)](#via-go-install-recommended)
@@ -15,6 +18,18 @@ The Bloom & LostLight PuzzleService.
     - [Docker-compose](#docker-compose)
     - [Debug](#debug)
   - [Installation and Usage for Docker users who don't want to use air image](#installation-and-usage-for-docker-users-who-dont-want-to-use-air-image)
+
+## Installation
+
+### **Native Bare Metel**
+
+    // Install Deps/Modules
+    go mod download
+
+## Usage
+
+    // Run the server on port 1323
+    go run .
 
 ## Live reloading with Air, installation and usage
 
