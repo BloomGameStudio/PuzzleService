@@ -17,12 +17,9 @@ import (
 func RunDemo() {
 	// Create a signer account that matches the account set on the contract
 	signerAddress := common.HexToAddress("0x0376AAc07Ad725E01357B1725B5ceC61aE10473c")
-	signerPrivateKey, err := crypto.HexToECDSA(
+	signerPrivateKey, _ := crypto.HexToECDSA(
 		strings.TrimPrefix("0x0000000000000000000000000000000000000000000000000000000000000b0b", "0x"),
 	)
-	if err != nil {
-		log.Fatalf("Failed to convert private key: %v", err)
-	}
 
 	// Encode raw solution data to get puzzle identifier
 	puzzleType := crypto.Keccak256Hash([]byte("LOCATION")).Bytes()
@@ -43,16 +40,10 @@ func RunDemo() {
 		),
 	)
 
-	fmt.Println(locationPuzzleId)
-
 	// Encode player address and puzzle identifier and hash to the create message digest
-	playerAddress, err := hex.DecodeString(
+	playerAddress, _ := hex.DecodeString(
 		strings.TrimPrefix("0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7", "0x"),
 	)
-	if err != nil {
-		fmt.Println("Error decoding address string:", err)
-		return
-	}
 
 	// The message digest the Solidity equivalent of `abi.encode(address player_address, bytes32 puzzle_identifier)`
 	data := crypto.Keccak256Hash(
@@ -68,27 +59,15 @@ func RunDemo() {
 
 	// Hash the full message message and sign the hash with the private key
 	hash := crypto.Keccak256([]byte(message))
-	signature, err := crypto.Sign(hash, signerPrivateKey)
-	if err != nil {
-		log.Fatalf("Failed to sign message: %v", err)
-	}
+	signature, _ := crypto.Sign(hash, signerPrivateKey)
 
-	// Print the signature
 	fmt.Printf("Signature: %x\n", signature)
 
 	// Verify the signature
-	recoveredPublicKey, err := crypto.Ecrecover(hash, signature)
-	if err != nil {
-		log.Fatalf("Failed to recover public key: %v", err)
-	}
-
-	// Convert to correct type
-	recoveredPublicKeyTyped, err := crypto.UnmarshalPubkey(recoveredPublicKey)
-	if err != nil {
-		log.Fatalf("Failed to recover public key: %v", err)
-	}
-
+	recoveredPublicKey, _ := crypto.Ecrecover(hash, signature)
+	recoveredPublicKeyTyped, _ := crypto.UnmarshalPubkey(recoveredPublicKey)
 	recoveredAddress := crypto.PubkeyToAddress(*recoveredPublicKeyTyped)
+
 	if recoveredAddress != signerAddress {
 		log.Fatalf("Signature verification failed. Recovered address: %s", recoveredAddress.Hex())
 	}
