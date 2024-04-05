@@ -1,79 +1,53 @@
 package handlers
 
-import (
-	"strconv"
+import "gorm.io/gorm"
 
-	"github.com/gofiber/fiber/v2"
-)
-
-type PuzzleHandler struct {
-    puzzles map[string]map[string]interface{}
+// Interface that takes a pointed gorm.DB and returns an error
+type HandlerInterface interface {
+    GetPuzzles(db *gorm.DB) error
+    CreatePuzzle(db *gorm.DB) error
+    UpdatePuzzle(db *gorm.DB) error
+    DeletePuzzle(db *gorm.DB) error
 }
 
-func NewPuzzleHandler() *PuzzleHandler {
-    return &PuzzleHandler{puzzles: make(map[string]map[string]interface{})}
+// Puzzle struct that contains the name and id of a puzzle
+type Puzzle struct {
+    Name string
+    Id int
 }
 
-func (h *PuzzleHandler) GetPuzzles(c *fiber.Ctx) error {
-    id := c.Query("id")
-    if id != "" {
-        puzzle, ok := h.puzzles[id]
-        if !ok {
-            return c.Status(fiber.StatusNotFound).SendString("No puzzle found with that ID")
-        }
-        return c.JSON(puzzle)
-    } else {
-        return c.JSON(h.puzzles)
+// Get all puzzles from the DB
+func (p *Puzzle) GetPuzzles(db *gorm.DB) error {
+    result := db.Find(p)
+    if result.Error != nil {
+        return result.Error
     }
+    return nil
 }
 
-func (h *PuzzleHandler) CreatePuzzle(c *fiber.Ctx) error {
-    puzzle := make(map[string]interface{})
-
-    if err := c.BodyParser(&puzzle); err != nil {
-        return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+// Create a puzzle in the DB
+func (p *Puzzle) CreatePuzzle(db *gorm.DB) error {
+    result := db.Create(p)
+    if result.Error != nil {
+        return result.Error
     }
-
-    id := strconv.Itoa(len(h.puzzles) + 1)
-    h.puzzles[id] = puzzle
-    return c.JSON(puzzle)
+    return nil
 }
 
-func (h *PuzzleHandler) UpdatePuzzle(c *fiber.Ctx) error {
-    id := c.Query("id")
-    if id == "" {
-        return c.Status(fiber.StatusBadRequest).SendString("No ID provided")
+// Update a puzzle in the DB
+func (p *Puzzle) UpdatePuzzle(db *gorm.DB) error {
+    result := db.Save(p)
+    if result.Error != nil {
+        return result.Error
     }
-
-    puzzle, ok := h.puzzles[id]
-    if !ok {
-        return c.Status(fiber.StatusNotFound).SendString("No puzzle found with that ID")
-    }
-
-    var updatedPuzzle map[string]interface{}
-    if err := c.BodyParser(&updatedPuzzle); err != nil {
-        return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-    }
-
-    for key, value := range updatedPuzzle {
-        puzzle[key] = value
-    }
-    h.puzzles[id] = puzzle
-
-    return c.JSON(puzzle)
+    return nil
 }
 
-func (h *PuzzleHandler) DeletePuzzle(c *fiber.Ctx) error {
-    id := c.Query("id")
-    if id == "" {
-        return c.Status(fiber.StatusBadRequest).SendString("No ID provided")
+// Delete a puzzle in the DB
+func (p *Puzzle) DeletePuzzle(db *gorm.DB) error {
+    result := db.Delete(p)
+    if result.Error != nil {
+        return result.Error
     }
-
-    _, ok := h.puzzles[id]
-    if !ok {
-        return c.Status(fiber.StatusNotFound).SendString("No puzzle found with that ID")
-    }
-
-    delete(h.puzzles, id)
-    return c.SendString("Puzzle successfully deleted")
+    return nil
 }
