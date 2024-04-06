@@ -33,6 +33,11 @@ func main() {
 		return c.SendString("Unimplemented!")
 	})
 
+	// Verification routes
+	app.Post("/verify/:puzzleID/:solution", func(c *fiber.Ctx) error {
+		return c.SendString("Unimplemented!")
+	})
+
 	// Start the server and listen on port 3000
 	app.Listen(":3000")
 }
