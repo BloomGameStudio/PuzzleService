@@ -36,6 +36,17 @@ func TestPuzzleOperations(t *testing.T) {
         t.Errorf("failed to get puzzles: %v", err)
     }
 
+    // Test GetPuzzle
+    err = p.GetPuzzle(db)
+    if err != nil {
+        t.Fatalf("Failed to get puzzle: %v", err)
+    }
+
+    // Check if the retrieved puzzle is the one that was created
+    if p.Name != "Test" || p.Id != 1 {
+        t.Errorf("expected name to be Test, got %s", p.Name)
+    }
+
     // Test UpdatePuzzle
     p.Name = "Updated"
     err = p.UpdatePuzzle(db)
