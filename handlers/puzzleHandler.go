@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 // Interface that takes a pointed gorm.DB and returns an error
 type HandlerInterface interface {
     GetPuzzles(db *gorm.DB) error
+    GetPuzzle(db *gorm.DB) error
     CreatePuzzle(db *gorm.DB) error
     UpdatePuzzle(db *gorm.DB) error
     DeletePuzzle(db *gorm.DB) error
@@ -19,6 +20,15 @@ type Puzzle struct {
 // Get all puzzles from the DB
 func (p *Puzzle) GetPuzzles(db *gorm.DB) error {
     result := db.Find(p)
+    if result.Error != nil {
+        return result.Error
+    }
+    return nil
+}
+
+// Get a puzzle from the DB
+func (p *Puzzle) GetPuzzle(db *gorm.DB) error {
+    result := db.First(p, p.Id)
     if result.Error != nil {
         return result.Error
     }
