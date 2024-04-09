@@ -9,7 +9,12 @@ func DBInit() (*gorm.DB, error) {
     //if err != nil {
     //    return nil, err
     //}
-    //return db, nil
 
-	return nil, nil
+    //err = AutoMigrate(db)
+    //if err != nil {
+    //    return nil, err
+    //}
+
+    //return db, nil
+    return nil, nil
 }
