@@ -1,62 +1,61 @@
 package tests
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/BloomGameStudio/PuzzleService/handlers"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
 )
 
-// TestPuzzleOperations tests the CreatePuzzle, GetPuzzles, UpdatePuzzle, and DeletePuzzle functions
-// That are defined in the handlers/puzzleHandler.go interface
+func TestPuzzleHandler(t *testing.T) {
 
-func TestPuzzleOperations(t *testing.T) {
-    db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-    if err != nil {
-        t.Fatalf("failed to open database: %v", err)
-    }
-
-    err = db.AutoMigrate(&handlers.Puzzle{})
-    if err != nil {
-        t.Fatalf("failed to migrate database: %v", err)
-    }
-
-    p := &handlers.Puzzle{Name: "Test", Id: 1}
+    app := fiber.New()
+    puzzleHandlers := handlers.NewPuzzleHandler()
+    app.Get("/puzzles", puzzleHandlers.GetPuzzles)
+    app.Post("/puzzles", puzzleHandlers.CreatePuzzle)
+    app.Put("/puzzles", puzzleHandlers.UpdatePuzzle)
+    app.Delete("/puzzles", puzzleHandlers.DeletePuzzle)
 
     // Test CreatePuzzle
-    err = p.CreatePuzzle(db)
-    if err != nil {
-        t.Errorf("failed to create puzzle: %v", err)
-    }
+    req := httptest.NewRequest(http.MethodPost, "/puzzles", strings.NewReader(`{"id":"1","name":"test","posX":1,"posY":2,"posZ":3,"solution":"test","solved":false}`))
+    req.Header.Set("Content-Type", "application/json")
+    resp, err := app.Test(req)
+    assert.Nil(t, err)
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
 
     // Test GetPuzzles
-    err = p.GetPuzzles(db)
-    if err != nil {
-        t.Errorf("failed to get puzzles: %v", err)
-    }
-
-    // Test GetPuzzle
-    err = p.GetPuzzle(db)
-    if err != nil {
-        t.Fatalf("Failed to get puzzle: %v", err)
-    }
-
-    // Check if the retrieved puzzle is the one that was created
-    if p.Name != "Test" || p.Id != 1 {
-        t.Errorf("expected name to be Test, got %s", p.Name)
-    }
+    req = httptest.NewRequest(http.MethodGet, "/puzzles", nil)
+    resp, err = app.Test(req)
+    assert.Nil(t, err)
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
+    body, _ := io.ReadAll(resp.Body)
+    assert.Contains(t, string(body), `"id":"1"`)
 
     // Test UpdatePuzzle
-    p.Name = "Updated"
-    err = p.UpdatePuzzle(db)
-    if err != nil {
-        t.Errorf("failed to update puzzle: %v", err)
-    }
+    req = httptest.NewRequest(http.MethodPut, "/puzzles?id=1", strings.NewReader(`{"name":"test updated","posX":1,"posY":2,"posZ":3,"solution":"test","solved":true}`))
+    req.Header.Set("Content-Type", "application/json")
+    resp, err = app.Test(req)
+    assert.Nil(t, err)
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
+    body, _ = io.ReadAll(resp.Body)
+    assert.Contains(t, string(body), `"name":"test updated"`)
 
     // Test DeletePuzzle
-    err = p.DeletePuzzle(db)
-    if err != nil {
-        t.Errorf("failed to delete puzzle: %v", err)
-    }
+    req = httptest.NewRequest(http.MethodDelete, "/puzzles?id=1", nil)
+    resp, err = app.Test(req)
+    assert.Nil(t, err)
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+    // Test GetPuzzles again to ensure the puzzle was deleted
+    req = httptest.NewRequest(http.MethodGet, "/puzzles", nil)
+    resp, err = app.Test(req)
+    assert.Nil(t, err)
+    assert.Equal(t, http.StatusOK, resp.StatusCode)
+    body, _ = io.ReadAll(resp.Body)
+    assert.NotContains(t, string(body), `"id":"1"`)
 }
