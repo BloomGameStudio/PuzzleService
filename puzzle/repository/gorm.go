@@ -8,8 +8,8 @@ import (
 )
 
 type Puzzle struct {
-	ID       string `gorm:"primaryKey"`
-	Solution string
+	ID       []byte `gorm:"primaryKey;size:32"`
+	Solution []byte
 	Title    string
 }
 
@@ -47,15 +47,18 @@ func (r PuzzleRepository) GetPuzzle(ctx context.Context) ([]*models.Puzzle, erro
 
 func toModel(puzzle *models.Puzzle) *Puzzle {
 	return &Puzzle{
-		ID:       puzzle.ID,
+		ID:       puzzle.ID[:],
 		Solution: puzzle.Solution,
 		Title:    puzzle.Title,
 	}
 }
 
 func toPuzzle(puzzle *Puzzle) *models.Puzzle {
+	var id [32]byte
+	copy(id[:], puzzle.ID)
+
 	return &models.Puzzle{
-		ID:       puzzle.ID,
+		ID:       id,
 		Solution: puzzle.Solution,
 		Title:    puzzle.Title,
 	}

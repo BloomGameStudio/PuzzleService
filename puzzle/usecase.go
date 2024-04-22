@@ -7,6 +7,6 @@ import (
 )
 
 type UseCase interface {
-	CreatePuzzle(ctx context.Context, title string, solution string, solutionTypes *[]string) error
+	CreatePuzzle(ctx context.Context, title string, solution []byte) error
 	GetPuzzles(ctx context.Context) ([]*models.Puzzle, error)
 }

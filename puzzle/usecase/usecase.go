@@ -5,6 +5,7 @@ import (
 
 	"github.com/BloomGameStudio/PuzzleService/models"
 	"github.com/BloomGameStudio/PuzzleService/puzzle"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type PuzzleUseCase struct {
@@ -17,12 +18,11 @@ func NewPuzzleUseCase(repo puzzle.Repository) *PuzzleUseCase {
 	}
 }
 
-func (uc PuzzleUseCase) CreatePuzzle(ctx context.Context, title string, solution string, solutionTypes *[]string) error {
+func (uc PuzzleUseCase) CreatePuzzle(ctx context.Context, title string, solution []byte) error {
 	puzzle := &models.Puzzle{
-		ID:            title, // TODO Change to hash of the solution
-		Solution:      solution,
-		SolutionTypes: *solutionTypes,
-		Title:         title,
+		ID:       crypto.Keccak256Hash(solution),
+		Solution: solution,
+		Title:    title,
 	}
 
 	uc.puzzleRepository.CreatePuzzle(ctx, puzzle)

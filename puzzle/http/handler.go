@@ -1,6 +1,8 @@
 package http
 
 import (
+	"encoding/hex"
+	"fmt"
 	"net/http"
 
 	"github.com/BloomGameStudio/PuzzleService/models"
@@ -9,10 +11,9 @@ import (
 )
 
 type Puzzle struct {
-	ID            string   `json:"id"`
-	Solution      string   `json:"solution"`
-	SolutionTypes []string `json:"solutionTypes"`
-	Title         string   `json:"title"`
+	ID       string `json:"id"`
+	Solution string `json:"solution"`
+	Title    string `json:"title"`
 }
 
 type Handler struct {
@@ -26,19 +27,30 @@ func NewHandler(uc puzzle.UseCase) *Handler {
 }
 
 type CreateBody struct {
-	Solution      string   `json:"solution"`
-	SolutionTypes []string `json:"solutionTypes"`
-	Title         string   `json:"title"`
+	Solution string `json:"solution"`
+	Title    string `json:"title"`
 }
 
 func (h *Handler) Create(c *fiber.Ctx) error {
 	body := new(CreateBody)
+
 	if err := c.BodyParser(body); err != nil {
 		c.Status(http.StatusBadRequest)
 		return nil
 	}
 
-	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, body.Solution, &body.SolutionTypes); err != nil {
+	if body.Solution[:2] != "0x" {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+
+	solutionByteString, err := hex.DecodeString(body.Solution[2:])
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+
+	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, solutionByteString); err != nil {
 		c.Status(http.StatusInternalServerError)
 		return nil
 	}
@@ -68,10 +80,9 @@ func (h *Handler) Get(c *fiber.Ctx) error {
 
 func toPuzzle(puzzle *models.Puzzle) *Puzzle {
 	return &Puzzle{
-		ID:            puzzle.ID,
-		Solution:      puzzle.Solution,
-		SolutionTypes: puzzle.SolutionTypes,
-		Title:         puzzle.Title,
+		ID:       fmt.Sprintf("0x%x", puzzle.ID),
+		Solution: fmt.Sprintf("0x%x", puzzle.Solution),
+		Title:    puzzle.Title,
 	}
 }
 
