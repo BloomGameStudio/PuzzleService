@@ -10,7 +10,17 @@ func RegisterHTTPEndpoints(app *fiber.App, uc puzzle.UseCase) {
 
 	puzzles := app.Group("/puzzles")
 	{
+		// Create
 		puzzles.Post("", h.Create)
-		puzzles.Get("", h.Get)
+
+		// Read
+		puzzles.Get("", h.GetAll)
+		puzzles.Get("/:id", h.GetById)
+
+		// Update
+		puzzles.Patch("/:id", h.PatchById)
+
+		// Delete
+		puzzles.Delete("/:id", h.DeleteById)
 	}
 }

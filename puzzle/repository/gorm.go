@@ -26,11 +26,13 @@ func NewPuzzleRepository(db *gorm.DB) *PuzzleRepository {
 func (r PuzzleRepository) CreatePuzzle(ctx context.Context, puzzle *models.Puzzle) error {
 	result := r.db.WithContext(ctx).Create(toModel(puzzle))
 
-	if result.Error != nil {
-		panic(result.Error)
-	}
+	return result.Error
+}
 
-	return nil
+func (r PuzzleRepository) DeletePuzzle(ctx context.Context, id [32]byte) (bool, error) {
+	result := r.db.WithContext(ctx).Where("id = ?", id[:]).Delete(&Puzzle{})
+
+	return result.RowsAffected != 0, result.Error
 }
 
 func (r PuzzleRepository) GetPuzzle(ctx context.Context) ([]*models.Puzzle, error) {
@@ -38,11 +40,7 @@ func (r PuzzleRepository) GetPuzzle(ctx context.Context) ([]*models.Puzzle, erro
 
 	result := r.db.WithContext(ctx).Find(&puzzles)
 
-	if result.Error != nil {
-		panic(result.Error)
-	}
-
-	return toPuzzles(&puzzles), nil
+	return toPuzzles(&puzzles), result.Error
 }
 
 func toModel(puzzle *models.Puzzle) *Puzzle {

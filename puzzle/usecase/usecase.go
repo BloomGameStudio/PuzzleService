@@ -25,9 +25,11 @@ func (uc PuzzleUseCase) CreatePuzzle(ctx context.Context, title string, solution
 		Title:    title,
 	}
 
-	uc.puzzleRepository.CreatePuzzle(ctx, puzzle)
+	return uc.puzzleRepository.CreatePuzzle(ctx, puzzle)
+}
 
-	return nil
+func (uc PuzzleUseCase) DeletePuzzle(ctx context.Context, id [32]byte) (bool, error) {
+	return uc.puzzleRepository.DeletePuzzle(ctx, id)
 }
 
 func (uc PuzzleUseCase) GetPuzzles(ctx context.Context) ([]*models.Puzzle, error) {

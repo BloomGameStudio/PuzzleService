@@ -44,13 +44,13 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 		return nil
 	}
 
-	solutionByteString, err := hex.DecodeString(body.Solution[2:])
+	solutionByteSlice, err := hex.DecodeString(body.Solution[2:])
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return nil
 	}
 
-	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, solutionByteString); err != nil {
+	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, solutionByteSlice); err != nil {
 		c.Status(http.StatusInternalServerError)
 		return nil
 	}
@@ -63,7 +63,7 @@ type GetResponse struct {
 	Puzzles []*Puzzle `json:"puzzles"`
 }
 
-func (h *Handler) Get(c *fiber.Ctx) error {
+func (h *Handler) GetAll(c *fiber.Ctx) error {
 	puzzles, err := h.UseCase.GetPuzzles(c.Context())
 
 	if err != nil {
@@ -74,6 +74,62 @@ func (h *Handler) Get(c *fiber.Ctx) error {
 	c.Status(http.StatusOK).JSON(&GetResponse{
 		Puzzles: toPuzzles(puzzles),
 	})
+
+	return nil
+}
+
+func (h *Handler) GetById(c *fiber.Ctx) error {
+	c.Status(http.StatusNotImplemented)
+	return nil
+}
+
+func (h *Handler) PatchById(c *fiber.Ctx) error {
+	c.Status(http.StatusNotImplemented)
+	return nil
+}
+
+type DeleteParams struct {
+	ID string `json:"id"`
+}
+
+func (h *Handler) DeleteById(c *fiber.Ctx) error {
+	params := new(DeleteParams)
+
+	if err := c.ParamsParser(params); err != nil {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+
+	if params.ID[:2] != "0x" {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+
+	idByteSlice, err := hex.DecodeString(params.ID[2:])
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+
+	if len(idByteSlice) != 32 {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+
+	var id [32]byte
+	copy(id[:], idByteSlice)
+
+	rowsAffected, err := h.UseCase.DeletePuzzle(c.Context(), id)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return nil
+	}
+
+	if rowsAffected {
+		c.Status(http.StatusNoContent)
+	} else {
+		c.Status(http.StatusNotFound)
+	}
 
 	return nil
 }
