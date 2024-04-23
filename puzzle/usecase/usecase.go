@@ -28,10 +28,24 @@ func (uc PuzzleUseCase) CreatePuzzle(ctx context.Context, title string, solution
 	return uc.puzzleRepository.CreatePuzzle(ctx, puzzle)
 }
 
-func (uc PuzzleUseCase) DeletePuzzle(ctx context.Context, id [32]byte) (bool, error) {
-	return uc.puzzleRepository.DeletePuzzle(ctx, id)
+func (uc PuzzleUseCase) GetPuzzles(ctx context.Context) ([]*models.Puzzle, error) {
+	return uc.puzzleRepository.GetPuzzles(ctx)
 }
 
-func (uc PuzzleUseCase) GetPuzzles(ctx context.Context) ([]*models.Puzzle, error) {
-	return uc.puzzleRepository.GetPuzzle(ctx)
+func (uc PuzzleUseCase) GetPuzzle(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
+	return uc.puzzleRepository.GetPuzzle(ctx, id)
+}
+
+func (uc PuzzleUseCase) UpdatePuzzle(ctx context.Context, id [32]byte, title string) (bool, error) {
+	puzzle := &models.Puzzle{
+		ID:       id,
+		Solution: nil,
+		Title:    title,
+	}
+
+	return uc.puzzleRepository.UpdatePuzzle(ctx, puzzle)
+}
+
+func (uc PuzzleUseCase) DeletePuzzle(ctx context.Context, id [32]byte) (bool, error) {
+	return uc.puzzleRepository.DeletePuzzle(ctx, id)
 }

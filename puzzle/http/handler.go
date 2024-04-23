@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -26,40 +27,35 @@ func NewHandler(uc puzzle.UseCase) *Handler {
 	}
 }
 
-type CreateBody struct {
+type CreateRequest struct {
 	Solution string `json:"solution"`
 	Title    string `json:"title"`
 }
 
 func (h *Handler) Create(c *fiber.Ctx) error {
-	body := new(CreateBody)
+	body := new(CreateRequest)
 
 	if err := c.BodyParser(body); err != nil {
-		c.Status(http.StatusBadRequest)
-		return nil
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	if body.Solution[:2] != "0x" {
-		c.Status(http.StatusBadRequest)
-		return nil
+	if len(body.Solution) < 2 || body.Solution[:2] != "0x" {
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
 	solutionByteSlice, err := hex.DecodeString(body.Solution[2:])
 	if err != nil {
-		c.Status(http.StatusBadRequest)
-		return nil
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
 	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, solutionByteSlice); err != nil {
-		c.Status(http.StatusInternalServerError)
-		return nil
+		c.SendStatus(http.StatusInternalServerError)
 	}
 
-	c.Status(http.StatusCreated)
-	return nil
+	return c.SendStatus(http.StatusCreated)
 }
 
-type GetResponse struct {
+type GetAllResponse struct {
 	Puzzles []*Puzzle `json:"puzzles"`
 }
 
@@ -67,71 +63,97 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 	puzzles, err := h.UseCase.GetPuzzles(c.Context())
 
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
-		return nil
+		return c.SendStatus(http.StatusInternalServerError)
 	}
 
-	c.Status(http.StatusOK).JSON(&GetResponse{
+	return c.Status(http.StatusOK).JSON(&GetAllResponse{
 		Puzzles: toPuzzles(puzzles),
 	})
-
-	return nil
 }
 
 func (h *Handler) GetById(c *fiber.Ctx) error {
-	c.Status(http.StatusNotImplemented)
-	return nil
+	id, err := toID(c.Params("id"))
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	puzzle, err := h.UseCase.GetPuzzle(c.Context(), id)
+
+	if err != nil {
+		return c.SendStatus(http.StatusNotFound)
+	}
+
+	return c.Status(http.StatusOK).JSON(toPuzzle(puzzle))
+}
+
+type PatchByIdRequest struct {
+	Title string `json:"title"`
 }
 
 func (h *Handler) PatchById(c *fiber.Ctx) error {
-	c.Status(http.StatusNotImplemented)
-	return nil
-}
+	id, err := toID(c.Params("id"))
 
-type DeleteParams struct {
-	ID string `json:"id"`
-}
-
-func (h *Handler) DeleteById(c *fiber.Ctx) error {
-	params := new(DeleteParams)
-
-	if err := c.ParamsParser(params); err != nil {
-		c.Status(http.StatusBadRequest)
-		return nil
-	}
-
-	if params.ID[:2] != "0x" {
-		c.Status(http.StatusBadRequest)
-		return nil
-	}
-
-	idByteSlice, err := hex.DecodeString(params.ID[2:])
 	if err != nil {
-		c.Status(http.StatusBadRequest)
-		return nil
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	if len(idByteSlice) != 32 {
-		c.Status(http.StatusBadRequest)
-		return nil
+	body := new(PatchByIdRequest)
+
+	if err := c.BodyParser(body); err != nil {
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	var id [32]byte
-	copy(id[:], idByteSlice)
-
-	rowsAffected, err := h.UseCase.DeletePuzzle(c.Context(), id)
+	rowsAffected, err := h.UseCase.UpdatePuzzle(c.Context(), id, body.Title)
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
-		return nil
+		return c.SendStatus(http.StatusInternalServerError)
 	}
 
 	if rowsAffected {
-		c.Status(http.StatusNoContent)
+		return c.SendStatus(http.StatusNoContent)
 	} else {
-		c.Status(http.StatusNotFound)
+		return c.SendStatus(http.StatusNotFound)
+	}
+}
+
+func (h *Handler) DeleteById(c *fiber.Ctx) error {
+	id, err := toID(c.Params("id"))
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return nil
+	rowsAffected, err := h.UseCase.DeletePuzzle(c.Context(), id)
+	if err != nil {
+		return c.SendStatus(http.StatusInternalServerError)
+	}
+
+	if rowsAffected {
+		return c.SendStatus(http.StatusNoContent)
+	} else {
+		return c.SendStatus(http.StatusNotFound)
+	}
+}
+
+func toID(id string) ([32]byte, error) {
+	var out [32]byte
+
+	if len(id) < 2 || id[:2] != "0x" {
+		return out, errors.New("'id' must start with '0x'")
+	}
+
+	idByteSlice, err := hex.DecodeString(id[2:])
+	if err != nil {
+		return out, errors.New("'id' is not a valid hex string")
+	}
+
+	if len(idByteSlice) != 32 {
+		return out, errors.New("'id' must be a 32 byte hex string")
+	}
+
+	copy(out[:], idByteSlice)
+
+	return out, nil
 }
 
 func toPuzzle(puzzle *models.Puzzle) *Puzzle {
