@@ -1,6 +1,9 @@
 package publicmodels
 
+import "gorm.io/gorm"
+
 type Puzzle struct {
-	ID   int
+	gorm.Model
+
 	Data string
 }
