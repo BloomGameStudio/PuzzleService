@@ -11,9 +11,6 @@ import (
 )
 
 func main() {
-	// Initialize Database
-	database.Init()
-
 	// Create a new instance of the Fiber app.
 	app := fiber.New()
 
