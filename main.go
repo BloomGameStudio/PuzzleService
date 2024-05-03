@@ -1,6 +1,9 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	puzzlehttp "github.com/BloomGameStudio/PuzzleService/puzzle/http"
+	"github.com/gofiber/fiber/v2"
+)
 
 func main() {
 
@@ -34,9 +37,7 @@ func main() {
 	})
 
 	// Verification routes
-	app.Post("/verify/:puzzleID/:solution", func(c *fiber.Ctx) error {
-		return c.SendString("Unimplemented!")
-	})
+	app.Post("/verify", puzzlehttp.VerifySolutionHandler)
 
 	// Start the server and listen on port 3000
 	app.Listen(":3000")
