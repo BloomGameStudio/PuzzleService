@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - This CHANGELOG file.
-
+- CRUD endpoints for a simple puzzle model.
 
 [unreleased]: https://github.com/BloomGameStudio/PuzzleService/compare/main...dev
 [0.1.0]: https://github.com/BloomGameStudio/PuzzleService/releases/tag/0.1.0
