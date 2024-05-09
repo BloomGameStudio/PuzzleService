@@ -27,6 +27,12 @@ The Bloom & LostLight PuzzleService.
     - [Rest Endpoints](#rest-endpoints)
         - [VerifyPuzzle](#verifypuzzle)
 
+## Architecture
+
+The API architecture is designed using "clean architecture" principles. Please ensure your contributions adhere to these principles.
+
+Read more about it here: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
+
 ## Installation
 
 ### **Native Bare Metel**

@@ -1,14 +1,14 @@
 package database
 
 import (
+	puzzlegorm "github.com/BloomGameStudio/PuzzleService/puzzle/repository"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func open() *gorm.DB {
-
+func Open() *gorm.DB {
 	// memoryDB := "file::memory:?cache=shared"
 	fileDB := "database/database.db"
 
@@ -17,16 +17,17 @@ func open() *gorm.DB {
 		PrepareStmt:            true,
 		// Logger:                 logger.Default.LogMode(logger.Info), // Show Gorm SQL Queries
 	})
+
 	if err != nil {
 		panic("failed to connect database")
 	}
 
 	return db
-
 }
 
 func Init() {
-	DB = open()
+	DB = Open()
+	DB.AutoMigrate(&puzzlegorm.Puzzle{})
 }
 
 func GetDB() *gorm.DB {
