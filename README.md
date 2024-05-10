@@ -3,6 +3,7 @@
 The Bloom & LostLight PuzzleService.
 
 - [PuzzleService](#puzzleservice)
+  - [Architecture](#architecture)
   - [Installation](#installation)
     - [**Native Bare Metel**](#native-bare-metel)
   - [Usage](#usage)
