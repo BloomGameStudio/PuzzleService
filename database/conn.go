@@ -1,6 +1,7 @@
 package database
 
 import (
+	publicModel "github.com/BloomGameStudio/PuzzleService/publicModels"
 	puzzlegorm "github.com/BloomGameStudio/PuzzleService/puzzle/repository"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ func Open() *gorm.DB {
 func Init() {
 	DB = Open()
 	DB.AutoMigrate(&puzzlegorm.Puzzle{})
+	DB.AutoMigrate(&publicModel.Puzzle{})
 }
 
 func GetDB() *gorm.DB {

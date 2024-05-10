@@ -3,18 +3,25 @@ package http
 import (
 	"fmt"
 
+	"github.com/BloomGameStudio/PuzzleService/database"
 	publicmodels "github.com/BloomGameStudio/PuzzleService/publicModels"
 	"github.com/gofiber/fiber/v2"
 )
 
-// Mock function to simulate fetching a puzzle solution
-// For example, return a hardcoded correct solution for ID 1
-
+// getCorrectSolutionForPuzzle retrieves the correct solution for the puzzle with the given ID.
 func getCorrectSolutionForPuzzle(id int) (string, error) {
-	if id == 1 {
-		return "Correct!", nil
-	}
-	return "", fmt.Errorf("no solution found for id %d", id)
+    var puzzle publicmodels.Puzzle
+
+    // Use the databse to find the puzzle with the given ID
+    result := database.GetDB().First(&puzzle, id)
+
+    // If the puzzle was not found, return an error
+    if result.Error != nil {
+        return "", fmt.Errorf("no solution found for id %d", id)
+    }
+
+    // Return the solution of the puzzle
+    return puzzle.Data, nil
 }
 
 // VerifySolutionHandler handles the verification of puzzle solution.
