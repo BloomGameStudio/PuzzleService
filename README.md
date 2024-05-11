@@ -43,6 +43,7 @@ Read more about it here: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-cl
     go run .
 
 ### **Using Docker && DockerCompose**
+> Note: Docker and Docker Compose are currently not implemented
 
 ---
 
