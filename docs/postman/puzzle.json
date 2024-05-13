@@ -1,0 +1,130 @@
+{
+	"info": {
+		"_postman_id": "46125ff6-6e45-4eac-927e-fa600f8e95e8",
+		"name": "PuzzleService",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34569429"
+	},
+	"item": [
+		{
+			"name": "puzzles/:id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"TEST3\",\n    \"solution\": \"0x012340\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/puzzles/0x4c9da916e26cb44967d2e97faa0081e79bacc51da94d924025402c5c7fbdbb18",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puzzles",
+						"0x4c9da916e26cb44967d2e97faa0081e79bacc51da94d924025402c5c7fbdbb18"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "puzzles",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"TEST3\",\n    \"solution\": \"0x012340\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/puzzles",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puzzles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "puzzles/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/puzzles/0x4c9da916e26cb44967d2e97faa0081e79bacc51da94d924025402c5c7fbdbb18",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puzzles",
+						"0x4c9da916e26cb44967d2e97faa0081e79bacc51da94d924025402c5c7fbdbb18"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "puzzles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/puzzles",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puzzles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "puzzles/:id",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"NEW TITLE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/puzzles/0x4c9da916e26cb44967d2e97faa0081e79bacc51da94d924025402c5c7fbdbb18",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puzzles",
+						"0x4c9da916e26cb44967d2e97faa0081e79bacc51da94d924025402c5c7fbdbb18"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

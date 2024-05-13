@@ -3,6 +3,7 @@
 The Bloom & LostLight PuzzleService.
 
 - [PuzzleService](#puzzleservice)
+  - [Architecture](#architecture)
   - [Installation](#installation)
     - [**Native Bare Metel**](#native-bare-metel)
   - [Usage](#usage)
@@ -23,6 +24,12 @@ The Bloom & LostLight PuzzleService.
     - [Air Debug](#air-debug)
   - [Installation and Usage for Docker users who don't want to use air image](#installation-and-usage-for-docker-users-who-dont-want-to-use-air-image)
 
+## Architecture
+
+The API architecture is designed using "clean architecture" principles. Please ensure your contributions adhere to these principles.
+
+Read more about it here: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
+
 ## Installation
 
 ### **Native Bare Metel**
@@ -36,6 +43,7 @@ The Bloom & LostLight PuzzleService.
     go run .
 
 ### **Using Docker && DockerCompose**
+> Note: Docker and Docker Compose are currently not implemented
 
 ---
 
