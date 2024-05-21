@@ -1,0 +1,15 @@
+version: "3"
+services:
+  puzzleservice:
+    image: ghcr.io/bloomgamestudio/puzzleservice:main
+    volumes:
+      - puzzleservice:/database
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  puzzleservice:
