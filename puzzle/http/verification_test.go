@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,6 +32,7 @@ func setupTestDB(t *testing.T) {
 
 	// Replace the global database instance with the in-memory one
 	database.DB = db
+	log.Println("In-memory database setup complete")
 }
 
 // Test verify route using correct solution
@@ -51,6 +53,8 @@ func TestVerifySolutionHandlerWithCorrectSolution(t *testing.T) {
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status OK, got %s", resp.Status)
+	} else {
+		log.Println("TestVerifySolutionHandlerWithCorrectSolution passed")
 	}
 }
 
@@ -72,6 +76,8 @@ func TestVerifySolutionHandlerWithIncorrectSolution(t *testing.T) {
 
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected status BadRequest, got %s", resp.Status)
+	} else {
+		log.Println("TestVerifySolutionHandlerWithIncorrectSolution passed")
 	}
 }
 
@@ -93,6 +99,8 @@ func TestVerifySolutionHandlerWithInvalidRequest(t *testing.T) {
 
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected status BadRequest, got %s", resp.Status)
+	} else {
+		log.Println("TestVerifySolutionHandlerWithInvalidRequest passed")
 	}
 }
 
@@ -114,5 +122,7 @@ func TestVerifySolutionHandlerWithNoSolutionFound(t *testing.T) {
 
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("Expected status NotFound, got %s", resp.Status)
+	} else {
+		log.Println("TestVerifySolutionHandlerWithNoSolutionFound passed")
 	}
 }
