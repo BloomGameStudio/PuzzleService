@@ -24,6 +24,10 @@ The Bloom & LostLight PuzzleService.
     - [Docker-compose](#docker-compose-1)
     - [Air Debug](#air-debug)
   - [Installation and Usage for Docker users who don't want to use air image](#installation-and-usage-for-docker-users-who-dont-want-to-use-air-image)
+  - [API Endpoints](#api-endpoints)
+    - [Rest Base Endpoints](#rest-base-endpoints)
+    - [Rest Endpoints](#rest-endpoints)
+        - [VerifyPuzzle](#verifypuzzle)
 
 ## Architecture
 
@@ -335,4 +339,72 @@ services:
     # Important to bind/mount your codebase dir to /app dir for live reload
     volumes:
       - ./:/app
+```
+
+---
+
+## API Endpoints
+
+Sending partial Data is Accepted and works on most Endpoints.
+Indications will be made if partial Data is not supported for certain objects or Endpoints.
+
+Sending Incorrect or Malformed JSON will always result in failure for the entire request.
+
+### Rest Base Endpoints
+
+Local Base Endpoint with Default Config:
+
+- http://127.0.0.1:3000
+
+Staging Base Endpoint:
+
+- http://staging.puzzle.bloomstudio.gg
+>*Note: This is not yet live
+
+Full Example:
+
+- http://127.0.0.1:1323/verify
+
+### Rest Endpoints
+
+##### VerifyPuzzle
+
+`POST /verify`
+
+Verifies a puzzle.
+
+Expects a puzzle and a solution in that order.
+
+**Headers:** None
+
+**Request Body:**
+
+Expects one of the two:
+>*Note: two is currently unimplemented.
+
+
+1.
+    | Name     | Type   | Mandatory | Info              |
+    |----------|--------|-----------|-------------------|
+    | PuzzleID | INT    | YES       | Has to be unique. |
+    | Solution | STRING | YES       |                   |
+
+
+1. A JSON serilized Puzzle [publicModel](./publicModels/puzzle.go) or a [model](./models/puzzle.go) and a solution [solution](./publicModels/puzzle.go) or a [solution](./models/puzzle.go) object in the body.
+    >*Note: Models are placeholders atm.
+
+
+**Request Body Example With all required Fields:**
+
+```json
+{
+  "PuzzleID": "33b7e1f3-6f8e-40b9-97dc-c54d9162vb05",
+  "Solution": "Solution string or byte array",
+}
+```
+
+**Response:**
+
+```json
+200 OK
 ```

@@ -1,5 +1,5 @@
 # Custom Project ignores
-
+database.db
 # Ignore Air tmp directory
 tmp
 
