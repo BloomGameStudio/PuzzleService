@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/BloomGameStudio/PuzzleService/models"
 	"github.com/BloomGameStudio/PuzzleService/puzzle"
@@ -10,11 +11,13 @@ import (
 
 type PuzzleUseCase struct {
 	puzzleRepository puzzle.Repository
+	puzzleOnchain    puzzle.Onchain
 }
 
-func NewPuzzleUseCase(repo puzzle.Repository) *PuzzleUseCase {
+func NewPuzzleUseCase(gorm puzzle.Repository, ethereum puzzle.Onchain) *PuzzleUseCase {
 	return &PuzzleUseCase{
-		puzzleRepository: repo,
+		puzzleRepository: gorm,
+		puzzleOnchain:    ethereum,
 	}
 }
 
@@ -33,6 +36,13 @@ func (uc PuzzleUseCase) GetPuzzles(ctx context.Context) ([]*models.Puzzle, error
 }
 
 func (uc PuzzleUseCase) GetPuzzle(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
+	puzzle, err := uc.puzzleOnchain.GetPuzzle(ctx, id)
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Println(puzzle.Committed)
+	fmt.Println(puzzle.Revealed)
+
 	return uc.puzzleRepository.GetPuzzle(ctx, id)
 }
 

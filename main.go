@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/BloomGameStudio/PuzzleService/database"
+	"github.com/BloomGameStudio/PuzzleService/ethereum"
 	puzzlehttp "github.com/BloomGameStudio/PuzzleService/puzzle/http"
-	puzzlegorm "github.com/BloomGameStudio/PuzzleService/puzzle/repository"
+	puzzleonchain "github.com/BloomGameStudio/PuzzleService/puzzle/repository/ethereum"
+	puzzlegorm "github.com/BloomGameStudio/PuzzleService/puzzle/repository/gorm"
 	puzzleuc "github.com/BloomGameStudio/PuzzleService/puzzle/usecase"
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,8 +22,9 @@ func main() {
 	})
 
 	// Puzzle
-	puzzleRepository := puzzlegorm.NewPuzzleRepository(database.GetDB())
-	puzzleUseCase := puzzleuc.NewPuzzleUseCase(puzzleRepository)
+	puzzleGormRepository := puzzlegorm.NewPuzzleRepository(database.GetDB())
+	puzzleEthereumRepository := puzzleonchain.NewPuzzleOnchain(ethereum.GetEth())
+	puzzleUseCase := puzzleuc.NewPuzzleUseCase(puzzleGormRepository, puzzleEthereumRepository)
 	puzzlehttp.RegisterHTTPEndpoints(app, puzzleUseCase)
 
 	// Start the server and listen on port 3000
