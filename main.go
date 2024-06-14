@@ -19,6 +19,8 @@ func main() {
 		return c.SendStatus(http.StatusOK)
 	})
 
+	// Verification routes
+	app.Post("/verify", puzzlehttp.VerifySolutionHandler)
 	// Puzzle
 	puzzleRepository := puzzlegorm.NewPuzzleRepository(database.GetDB())
 	puzzleUseCase := puzzleuc.NewPuzzleUseCase(puzzleRepository)
