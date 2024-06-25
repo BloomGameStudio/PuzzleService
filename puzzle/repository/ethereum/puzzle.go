@@ -2,7 +2,6 @@ package ethereum
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/BloomGameStudio/PuzzleService/contract"
 	"github.com/BloomGameStudio/PuzzleService/ethereum"
@@ -32,23 +31,15 @@ type Puzzle struct {
 }
 
 func (o PuzzleOnchain) GetPuzzle(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
-	fmt.Println(id)
-	fmt.Println(o.eth.ChainID(context.TODO()))
-	owner, _ := o.puzzleRegistry.Owner(&bind.CallOpts{})
-	fmt.Println(owner)
 	committed, err := o.puzzleRegistry.Committed(&bind.CallOpts{}, id)
 	if err != nil {
-		fmt.Println(err.Error())
 		panic("could not retrieve \"Committed\" data")
 	}
-	fmt.Println(committed)
 
 	revealed, err := o.puzzleRegistry.SolutionRevealed(&bind.CallOpts{}, id)
 	if err != nil {
-		fmt.Println(err.Error())
 		panic("could not retrieve \"Solution\" data")
 	}
-	fmt.Println(revealed)
 
 	return toPuzzle(&Puzzle{
 		ID:        id,

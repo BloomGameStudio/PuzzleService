@@ -12,9 +12,11 @@ import (
 )
 
 type Puzzle struct {
-	ID       string `json:"id"`
-	Solution string `json:"solution"`
-	Title    string `json:"title"`
+	Title     string `json:"title"`
+	ID        string `json:"id"`
+	Solution  string `json:"solution"`
+	Committed bool   `json:"committed"`
+	Revealed  bool   `json:"revealed"`
 }
 
 type Handler struct {
@@ -158,9 +160,11 @@ func toID(id string) ([32]byte, error) {
 
 func toPuzzle(puzzle *models.Puzzle) *Puzzle {
 	return &Puzzle{
-		ID:       fmt.Sprintf("0x%x", puzzle.ID),
-		Solution: fmt.Sprintf("0x%x", puzzle.Solution),
-		Title:    puzzle.Title,
+		Title:     puzzle.Title,
+		ID:        fmt.Sprintf("0x%x", puzzle.ID),
+		Solution:  fmt.Sprintf("0x%x", puzzle.Solution),
+		Committed: puzzle.Committed,
+		Revealed:  puzzle.Revealed,
 	}
 }
 
