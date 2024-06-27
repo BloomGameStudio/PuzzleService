@@ -7,6 +7,7 @@ import (
 	"github.com/BloomGameStudio/PuzzleService/ethereum"
 	"github.com/BloomGameStudio/PuzzleService/models"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -30,15 +31,29 @@ type Puzzle struct {
 	Revealed  bool
 }
 
-func (o PuzzleOnchain) GetPuzzle(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
+func (o PuzzleOnchain) Commit(ctx context.Context, id [32]byte) (*types.Transaction, error) {
+	auth, err := ethereum.GetAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := o.puzzleRegistry.Commit(auth, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
+}
+
+func (o PuzzleOnchain) GetById(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
 	committed, err := o.puzzleRegistry.Committed(&bind.CallOpts{}, id)
 	if err != nil {
-		panic("could not retrieve \"Committed\" data")
+		return nil, err
 	}
 
 	revealed, err := o.puzzleRegistry.SolutionRevealed(&bind.CallOpts{}, id)
 	if err != nil {
-		panic("could not retrieve \"Solution\" data")
+		return nil, err
 	}
 
 	return toPuzzle(&Puzzle{

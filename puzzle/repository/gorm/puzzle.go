@@ -8,9 +8,11 @@ import (
 )
 
 type Puzzle struct {
-	ID       []byte `gorm:"primaryKey;size:32"`
-	Solution []byte
-	Title    string
+	ID        []byte `gorm:"primaryKey;size:32"`
+	Solution  []byte
+	Title     string
+	Committed bool
+	Revealed  bool
 }
 
 type PuzzleRepository struct {
@@ -23,13 +25,33 @@ func NewPuzzleRepository(db *gorm.DB) *PuzzleRepository {
 	}
 }
 
-func (r PuzzleRepository) CreatePuzzle(ctx context.Context, puzzle *models.Puzzle) error {
+func (r PuzzleRepository) Create(ctx context.Context, puzzle *models.Puzzle) error {
 	result := r.db.WithContext(ctx).Create(toModel(puzzle))
 
 	return result.Error
 }
 
-func (r PuzzleRepository) GetPuzzles(ctx context.Context) ([]*models.Puzzle, error) {
+func (r PuzzleRepository) DeleteById(ctx context.Context, id [32]byte) (bool, error) {
+	result := r.db.WithContext(ctx).Where("id = ?", id[:]).Delete(&Puzzle{})
+
+	return result.RowsAffected != 0, result.Error
+}
+
+func (r PuzzleRepository) ExistsById(ctx context.Context, id [32]byte) (bool, error) {
+	_, err := r.GetById(ctx, id)
+
+	if err != nil {
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func (r PuzzleRepository) GetAll(ctx context.Context) ([]*models.Puzzle, error) {
 	var puzzles []Puzzle
 
 	result := r.db.WithContext(ctx).Find(&puzzles)
@@ -37,7 +59,7 @@ func (r PuzzleRepository) GetPuzzles(ctx context.Context) ([]*models.Puzzle, err
 	return toPuzzles(&puzzles), result.Error
 }
 
-func (r PuzzleRepository) GetPuzzle(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
+func (r PuzzleRepository) GetById(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
 	var puzzle Puzzle
 
 	result := r.db.WithContext(ctx).Where("id = ?", id[:]).First(&puzzle)
@@ -45,23 +67,23 @@ func (r PuzzleRepository) GetPuzzle(ctx context.Context, id [32]byte) (*models.P
 	return toPuzzle(&puzzle), result.Error
 }
 
-func (r PuzzleRepository) UpdatePuzzle(ctx context.Context, puzzle *models.Puzzle) (bool, error) {
-	result := r.db.WithContext(ctx).Model(&Puzzle{}).Where("id = ?", puzzle.ID[:]).Updates(Puzzle{Title: puzzle.Title})
-
-	return result.RowsAffected != 0, result.Error
-}
-
-func (r PuzzleRepository) DeletePuzzle(ctx context.Context, id [32]byte) (bool, error) {
-	result := r.db.WithContext(ctx).Where("id = ?", id[:]).Delete(&Puzzle{})
+func (r PuzzleRepository) Update(ctx context.Context, puzzle *models.Puzzle) (bool, error) {
+	result := r.db.WithContext(ctx).Model(&Puzzle{}).Where("id = ?", puzzle.ID[:]).Updates(Puzzle{
+		Title:     puzzle.Title,
+		Committed: puzzle.Committed,
+		Revealed:  puzzle.Revealed,
+	})
 
 	return result.RowsAffected != 0, result.Error
 }
 
 func toModel(puzzle *models.Puzzle) *Puzzle {
 	return &Puzzle{
-		ID:       puzzle.ID[:],
-		Solution: puzzle.Solution,
-		Title:    puzzle.Title,
+		ID:        puzzle.ID[:],
+		Solution:  puzzle.Solution,
+		Title:     puzzle.Title,
+		Committed: puzzle.Committed,
+		Revealed:  puzzle.Revealed,
 	}
 }
 
@@ -70,9 +92,11 @@ func toPuzzle(puzzle *Puzzle) *models.Puzzle {
 	copy(id[:], puzzle.ID)
 
 	return &models.Puzzle{
-		ID:       id,
-		Solution: puzzle.Solution,
-		Title:    puzzle.Title,
+		ID:        id,
+		Solution:  puzzle.Solution,
+		Title:     puzzle.Title,
+		Committed: puzzle.Committed,
+		Revealed:  puzzle.Revealed,
 	}
 }
 

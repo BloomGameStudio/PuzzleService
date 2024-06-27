@@ -20,12 +20,12 @@ type Puzzle struct {
 }
 
 type Handler struct {
-	UseCase puzzle.UseCase
+	PuzzleUseCase puzzle.UseCase
 }
 
 func NewHandler(uc puzzle.UseCase) *Handler {
 	return &Handler{
-		UseCase: uc,
+		PuzzleUseCase: uc,
 	}
 }
 
@@ -50,7 +50,16 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, solutionByteSlice); err != nil {
+	puzzleExists, err := h.PuzzleUseCase.ExistsBySolution(c.Context(), solutionByteSlice)
+	if err != nil {
+		c.SendStatus(http.StatusInternalServerError)
+	}
+
+	if puzzleExists {
+		return c.SendStatus(http.StatusBadRequest)
+	}
+
+	if err := h.PuzzleUseCase.Create(c.Context(), body.Title, solutionByteSlice); err != nil {
 		c.SendStatus(http.StatusInternalServerError)
 	}
 
@@ -62,7 +71,7 @@ type GetAllResponse struct {
 }
 
 func (h *Handler) GetAll(c *fiber.Ctx) error {
-	puzzles, err := h.UseCase.GetPuzzles(c.Context())
+	puzzles, err := h.PuzzleUseCase.GetAll(c.Context())
 
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
@@ -80,7 +89,7 @@ func (h *Handler) GetById(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	puzzle, err := h.UseCase.GetPuzzle(c.Context(), id)
+	puzzle, err := h.PuzzleUseCase.GetById(c.Context(), id)
 
 	if err != nil {
 		return c.SendStatus(http.StatusNotFound)
@@ -106,7 +115,7 @@ func (h *Handler) PatchById(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	rowsAffected, err := h.UseCase.UpdatePuzzle(c.Context(), id, body.Title)
+	rowsAffected, err := h.PuzzleUseCase.Update(c.Context(), id, body.Title)
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
 	}
@@ -125,7 +134,7 @@ func (h *Handler) DeleteById(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	rowsAffected, err := h.UseCase.DeletePuzzle(c.Context(), id)
+	rowsAffected, err := h.PuzzleUseCase.DeleteById(c.Context(), id)
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
 	}
