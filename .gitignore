@@ -24,3 +24,9 @@ tmp
 
 # Go workspace file
 go.work
+
+# Environment variables
+.env
+
+# Local artifacts
+.DS_Store

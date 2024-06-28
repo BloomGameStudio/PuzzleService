@@ -12,18 +12,20 @@ import (
 )
 
 type Puzzle struct {
-	ID       string `json:"id"`
-	Solution string `json:"solution"`
-	Title    string `json:"title"`
+	Title     string `json:"title"`
+	ID        string `json:"id"`
+	Solution  string `json:"solution"`
+	Committed bool   `json:"committed"`
+	Revealed  bool   `json:"revealed"`
 }
 
 type Handler struct {
-	UseCase puzzle.UseCase
+	PuzzleUseCase puzzle.UseCase
 }
 
 func NewHandler(uc puzzle.UseCase) *Handler {
 	return &Handler{
-		UseCase: uc,
+		PuzzleUseCase: uc,
 	}
 }
 
@@ -48,7 +50,16 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	if err := h.UseCase.CreatePuzzle(c.Context(), body.Title, solutionByteSlice); err != nil {
+	puzzleExists, err := h.PuzzleUseCase.ExistsBySolution(c.Context(), solutionByteSlice)
+	if err != nil {
+		c.SendStatus(http.StatusInternalServerError)
+	}
+
+	if puzzleExists {
+		return c.SendStatus(http.StatusBadRequest)
+	}
+
+	if err := h.PuzzleUseCase.Create(c.Context(), body.Title, solutionByteSlice); err != nil {
 		c.SendStatus(http.StatusInternalServerError)
 	}
 
@@ -60,7 +71,7 @@ type GetAllResponse struct {
 }
 
 func (h *Handler) GetAll(c *fiber.Ctx) error {
-	puzzles, err := h.UseCase.GetPuzzles(c.Context())
+	puzzles, err := h.PuzzleUseCase.GetAll(c.Context())
 
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
@@ -73,13 +84,11 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 
 func (h *Handler) GetById(c *fiber.Ctx) error {
 	id, err := toID(c.Params("id"))
-
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	puzzle, err := h.UseCase.GetPuzzle(c.Context(), id)
-
+	puzzle, err := h.PuzzleUseCase.GetById(c.Context(), id)
 	if err != nil {
 		return c.SendStatus(http.StatusNotFound)
 	}
@@ -88,23 +97,27 @@ func (h *Handler) GetById(c *fiber.Ctx) error {
 }
 
 type PatchByIdRequest struct {
-	Title string `json:"title"`
+	Title    string `json:"title"`
+	Revealed bool   `json:"revealed"`
 }
 
 func (h *Handler) PatchById(c *fiber.Ctx) error {
 	id, err := toID(c.Params("id"))
-
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	body := new(PatchByIdRequest)
-
 	if err := c.BodyParser(body); err != nil {
 		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	rowsAffected, err := h.UseCase.UpdatePuzzle(c.Context(), id, body.Title)
+	_, err = h.PuzzleUseCase.GetById(c.Context(), id)
+	if err != nil {
+		return c.SendStatus(http.StatusNotFound)
+	}
+
+	rowsAffected, err := h.PuzzleUseCase.Update(c.Context(), id, body.Title, body.Revealed)
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
 	}
@@ -118,12 +131,11 @@ func (h *Handler) PatchById(c *fiber.Ctx) error {
 
 func (h *Handler) DeleteById(c *fiber.Ctx) error {
 	id, err := toID(c.Params("id"))
-
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	rowsAffected, err := h.UseCase.DeletePuzzle(c.Context(), id)
+	rowsAffected, err := h.PuzzleUseCase.DeleteById(c.Context(), id)
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
 	}
@@ -158,9 +170,11 @@ func toID(id string) ([32]byte, error) {
 
 func toPuzzle(puzzle *models.Puzzle) *Puzzle {
 	return &Puzzle{
-		ID:       fmt.Sprintf("0x%x", puzzle.ID),
-		Solution: fmt.Sprintf("0x%x", puzzle.Solution),
-		Title:    puzzle.Title,
+		Title:     puzzle.Title,
+		ID:        fmt.Sprintf("0x%x", puzzle.ID),
+		Solution:  fmt.Sprintf("0x%x", puzzle.Solution),
+		Committed: puzzle.Committed,
+		Revealed:  puzzle.Revealed,
 	}
 }
 

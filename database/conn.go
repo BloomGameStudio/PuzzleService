@@ -1,7 +1,7 @@
 package database
 
 import (
-	puzzlegorm "github.com/BloomGameStudio/PuzzleService/puzzle/repository"
+	puzzlegorm "github.com/BloomGameStudio/PuzzleService/puzzle/repository/gorm"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
