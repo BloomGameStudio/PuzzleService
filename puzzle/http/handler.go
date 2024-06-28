@@ -84,13 +84,11 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 
 func (h *Handler) GetById(c *fiber.Ctx) error {
 	id, err := toID(c.Params("id"))
-
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	puzzle, err := h.PuzzleUseCase.GetById(c.Context(), id)
-
 	if err != nil {
 		return c.SendStatus(http.StatusNotFound)
 	}
@@ -99,23 +97,27 @@ func (h *Handler) GetById(c *fiber.Ctx) error {
 }
 
 type PatchByIdRequest struct {
-	Title string `json:"title"`
+	Title    string `json:"title"`
+	Revealed bool   `json:"revealed"`
 }
 
 func (h *Handler) PatchById(c *fiber.Ctx) error {
 	id, err := toID(c.Params("id"))
-
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	body := new(PatchByIdRequest)
-
 	if err := c.BodyParser(body); err != nil {
 		return c.SendStatus(http.StatusBadRequest)
 	}
 
-	rowsAffected, err := h.PuzzleUseCase.Update(c.Context(), id, body.Title)
+	_, err = h.PuzzleUseCase.GetById(c.Context(), id)
+	if err != nil {
+		return c.SendStatus(http.StatusNotFound)
+	}
+
+	rowsAffected, err := h.PuzzleUseCase.Update(c.Context(), id, body.Title, body.Revealed)
 	if err != nil {
 		return c.SendStatus(http.StatusInternalServerError)
 	}
@@ -129,7 +131,6 @@ func (h *Handler) PatchById(c *fiber.Ctx) error {
 
 func (h *Handler) DeleteById(c *fiber.Ctx) error {
 	id, err := toID(c.Params("id"))
-
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}

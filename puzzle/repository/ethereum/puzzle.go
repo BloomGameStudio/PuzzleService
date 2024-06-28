@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/BloomGameStudio/PuzzleService/contract"
 	"github.com/BloomGameStudio/PuzzleService/ethereum"
@@ -31,20 +32,6 @@ type Puzzle struct {
 	Revealed  bool
 }
 
-func (o PuzzleOnchain) Commit(ctx context.Context, id [32]byte) (*types.Transaction, error) {
-	auth, err := ethereum.GetAuth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := o.puzzleRegistry.Commit(auth, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return tx, nil
-}
-
 func (o PuzzleOnchain) GetById(ctx context.Context, id [32]byte) (*models.Puzzle, error) {
 	committed, err := o.puzzleRegistry.Committed(&bind.CallOpts{}, id)
 	if err != nil {
@@ -61,6 +48,34 @@ func (o PuzzleOnchain) GetById(ctx context.Context, id [32]byte) (*models.Puzzle
 		Committed: committed,
 		Revealed:  revealed,
 	}), nil
+}
+
+func (o PuzzleOnchain) Commit(ctx context.Context, id [32]byte) (*types.Transaction, error) {
+	auth, err := ethereum.GetAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := o.puzzleRegistry.Commit(auth, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
+}
+
+func (o PuzzleOnchain) Reveal(ctx context.Context, solution []byte) (*types.Transaction, error) {
+	auth, err := ethereum.GetAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := o.puzzleRegistry.SetSolution(auth, solution)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
 }
 
 func toPuzzle(puzzle *Puzzle) *models.Puzzle {

@@ -74,14 +74,25 @@ func (uc PuzzleUseCase) GetById(ctx context.Context, id [32]byte) (*models.Puzzl
 	return uc.SyncState(ctx, puzzle)
 }
 
-func (uc PuzzleUseCase) Update(ctx context.Context, id [32]byte, title string) (bool, error) {
-	puzzle := &models.Puzzle{
+func (uc PuzzleUseCase) Update(ctx context.Context, id [32]byte, title string, revealed bool) (bool, error) {
+	puzzle, err := uc.puzzleRepository.GetById(ctx, id)
+	if err != nil {
+		return false, err
+	}
+
+	if revealed && !puzzle.Revealed {
+		_, err := uc.puzzleOnchain.Reveal(ctx, puzzle.Solution)
+		if err != nil {
+			return false, nil
+		}
+	}
+
+	return uc.puzzleRepository.Update(ctx, &models.Puzzle{
 		ID:       id,
 		Solution: nil,
 		Title:    title,
-	}
-
-	return uc.puzzleRepository.Update(ctx, puzzle)
+		Revealed: revealed || puzzle.Revealed,
+	})
 }
 
 func (uc PuzzleUseCase) SyncState(ctx context.Context, puzzle *models.Puzzle) (*models.Puzzle, error) {

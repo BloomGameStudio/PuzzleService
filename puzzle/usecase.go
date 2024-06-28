@@ -12,5 +12,5 @@ type UseCase interface {
 	ExistsBySolution(ctx context.Context, solution []byte) (bool, error)
 	GetAll(ctx context.Context) ([]*models.Puzzle, error)
 	GetById(ctx context.Context, id [32]byte) (*models.Puzzle, error)
-	Update(ctx context.Context, id [32]byte, title string) (bool, error)
+	Update(ctx context.Context, id [32]byte, title string, revealed bool) (bool, error)
 }
